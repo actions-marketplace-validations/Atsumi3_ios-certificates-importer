@@ -1,0 +1,35 @@
+name: 'iOS Certificates Installer'
+description: 'Setup p12, provisioning profile for iOS'
+
+branding:
+  icon: "command"
+  color: "purple"
+
+inputs:
+  p12-base64:
+    description: 'Base64 encoded P12 file'
+    required: true
+    default: ''
+  p12-password:
+    description: 'Password for P12 file'
+    required: true
+    default: ''
+  provisioning-profile-base64:
+    description: 'Base64 encoded Provisioning Profile'
+    required: true
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Install Certificates
+      uses: Apple-Actions/import-codesign-certs@v5
+      with:
+        p12-file-base64: ${{ inputs.p12-base64 }}
+        p12-password: ${{ inputs.p12-password }}
+
+    - name: Install Provisioning Profiles
+      shell: bash
+      run: |
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        echo -n ${{ inputs.provisioning-profile-base64 }} | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/app.mobileprovision
